@@ -1,0 +1,32 @@
+image:
+  repository: f3lin
+  tag: latest
+
+movieService:
+  image: movie-service
+  port: 8000
+  env:
+#    DATABASE_URI: postgresql://movie_db_username:movie_db_password@movie_db/movie_db_dev
+    CAST_SERVICE_HOST_URL: http://cast_service:8000/api/v1/casts/
+
+castService:
+  image: cast-service
+  port: 8000
+#  env:
+#    DATABASE_URI: postgresql://cast_db_username:cast_db_password@cast_db/cast_db_dev
+
+postgresql:
+  image: postgres:12.1-alpine
+  movie_db:
+    user: movie_db_username
+    password: movie_db_password
+    name: movie_db_dev
+  cast_db:
+    user: cast_db_username
+    password: cast_db_password
+    name: cast_db_dev
+
+nginx:
+  image: nginx:latest
+  port: 8080
+  config: ./nginx_config.conf

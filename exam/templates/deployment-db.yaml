@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-db
+  template:
+    metadata:
+      labels:
+        app: movie-db
+    spec:
+      containers:
+        - name: movie-db
+          image: "{{ .Values.postgresql.image }}"
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.movie_db.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.movie_db.password | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.movie_db.name | quote }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cast-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cast-db
+  template:
+    metadata:
+      labels:
+        app: cast-db
+    spec:
+      containers:
+        - name: cast-db
+          image: "{{ .Values.postgresql.image }}"
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.cast_db.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.cast_db.password | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.cast_db.name | quote }}

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-service
+  template:
+    metadata:
+      labels:
+        app: movie-service
+    spec:
+      containers:
+        - name: movie-service
+          image: "{{ .Values.image.repository }}/{{ .Values.movieService.image }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.movieService.port }}
+          env:
+            - name: DATABASE_URI
+              value: postgresql://movie_db_{{ .Release.Namespace }}:movie_db_password@movie_db.{{ .Release.Namespace }}/movie_db_{{ .Release.Namespace }}
+            - name: CAST_SERVICE_HOST_URL
+              value:  http://cast_service.{{ .Release.Namespace }}:8000/api/v1/casts/
