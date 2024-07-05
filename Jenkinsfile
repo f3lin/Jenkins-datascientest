@@ -10,7 +10,7 @@ stages {
             steps {
                 script {
                 sh '''
-                 sudo docker rm -f jenkins
+                 sudo docker rm -f jenkins || true
                  sudo docker build -t $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG .
                 sleep 6
                 '''
