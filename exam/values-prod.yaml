@@ -16,17 +16,17 @@ movie_app:
   replicaCount: 1
   image: f3lin/movie-api:latest
   port: 8001
-  nodePort: 30011
+  nodePort: 30001
   databaseURI: postgresql://movie_db_username:movie_db_password@movie-db-service:5432/movie_db
   castServiceHostURL: http://cast_service:8000/api/v1/casts/
   pvc:
-    storage: 100Mi
+    storage: 1Gi
 
 cast_app:
   replicaCount: 1
   image: f3lin/cast-api:latest
   port: 8002
-  nodePort: 30012
+  nodePort: 30002
   databaseURI: postgresql://cast_db_username:cast_db_password@cast-db-service:5432/cast_db
   pvc:
-    storage: 100Mi
+    storage: 1Gi

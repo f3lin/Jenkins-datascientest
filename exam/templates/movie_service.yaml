@@ -4,8 +4,10 @@ metadata:
   name: movie-service
   namespace: {{ .Release.Namespace }}
 spec:
+  type: NodePort
   ports:
-    - port: 8000
+    - port: {{ .Values.movie_app.port }}
       targetPort: 8000
+      nodePort: {{ .Values.movie_app.nodePort }}
   selector:
-    app: movie-service
+    app: movie-app

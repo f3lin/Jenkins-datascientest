@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: movie-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: movie-db
+spec:
+  replicas: {{ .Values.postgresql.movie.replicaCount }}
+  selector:
+    matchLabels:
+      app: movie-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: movie-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.movie.name }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.movie.password }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.movie.user }}
+          image: postgres:12.1-alpine
+          name: movie-db
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data-movie
+      restartPolicy: Always
+      volumes:
+        - name: postgres-data-movie
+          persistentVolumeClaim:
+            claimName: postgres-data-movie
+
+
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cast-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cast-db
+spec:
+  replicas: {{ .Values.postgresql.cast.replicaCount }}
+  selector:
+    matchLabels:
+      app: cast-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cast-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.cast.name }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.cast.password }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.cast.user }}
+          image: postgres:12.1-alpine
+          name: cast-db
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data-cast
+      restartPolicy: Always
+      volumes:
+        - name: postgres-data-cast
+          persistentVolumeClaim:
+            claimName: postgres-data-cast
+
+
