@@ -133,8 +133,8 @@ pipeline {
                           ls
                           cat $KUBECONFIG > .kube/config
                           cp exam/values.yaml values.yaml
-                          sed -i 's/movie_app.nodePort: .*/movie_app.nodePort: ${nodePortMovie}/g; s/cast_app.nodePort: .*/cast_app.nodePort: ${nodePortCast}/g; s/movie_app.pvc.storage: .*/movie_app.pvc.storage: ${storage}/g; s/cast_app.pvc.storage: .*/cast_app.pvc.storage: ${storage}/g' values.yaml
-                          helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values values.yaml
+                         sed -i 's|movie_app:\n *nodePort: .*|movie_app:\n  nodePort: ${nodePortMovie}|g; s|cast_app:\n *nodePort: .*|cast_app:\n  nodePort: ${nodePortCast}|g; s|movie_app:\n *pvc:\n  *storage: .*|movie_app:\n  pvc:\n   storage: ${storage}|g; s|cast_app:\n *pvc:\n  *storage: .*|cast_app:\n  pvc:\n   storage: ${storage}|g' values.yaml
+                         helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values values.yaml
                         """
                     }
                 }
@@ -173,8 +173,8 @@ pipeline {
                  docker rm -f jenkins-cast jenkins-movie || true
                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG || true
                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG || true
-                 docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latesr || true
-                 docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:lates || true
+                 docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latest || true
+                 docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest || true
                 '''
             }
         }
