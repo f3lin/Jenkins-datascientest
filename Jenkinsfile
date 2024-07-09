@@ -4,6 +4,7 @@ pipeline {
         DOCKER_CAST_IMAGE = "cast-api"
         DOCKER_MOVIE_IMAGE = "movie-api"
         DOCKER_TAG = "v.${BUILD_ID}.0"
+        NAMESPACE_LIST = "dev,qa,staging"  // Define a list of namespaces
     }
     agent any
     options {
@@ -92,28 +93,49 @@ pipeline {
 
         stage('Helm Deployment to Dev/QA/Staging') {
             environment {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+                KUBECONFIG = credentials("config") // assuming you have Kubernetes config stored as a Jenkins credential
             }
             steps {
                 script {
-                    sh '''
-                     rm -Rf .kube
-                     mkdir .kube
-                     ls
-                     cat $KUBECONFIG > .kube/config
-                     # Set the namespace for Helm deployment
-                     NAMESPACE=dev
+                    def namespaces = env.NAMESPACE_LIST.split(',')
 
-                     # Check for the branch name and set the namespace accordingly
-                     if [ "${BRANCH_NAME}" == "qa" ]; then
-                         NAMESPACE=qa
-                     elif [ "${BRANCH_NAME}" == "staging"; then
-                         NAMESPACE=staging
-                     fi
+                    for (String namespace : namespaces) {
+                        // Define namespace-specific values
+                        def nodePortMovie
+                        def nodePortCast
+                        def storage
 
-                     # Deploy with Helm using values.yaml
-                     helm upgrade --install exam-app exam/ --namespace $NAMESPACE --create-namespace --values exam/values.yaml
-                    '''
+                        switch (namespace) {
+                            case "dev":
+                                nodePortMovie = 30011
+                                nodePortCast = 30012
+                                storage = "100Mi"
+                                break
+                            case "qa":
+                                nodePortMovie = 30013
+                                nodePortCast = 30014
+                                storage = "100Mi"
+                                break
+                            case "staging":
+                                nodePortMovie = 30015
+                                nodePortCast = 30016
+                                storage = "150Mi"
+                                break
+                            default:
+                                echo "Namespace ${namespace} not recognized"
+                                continue
+                        }
+
+                        // Modify values.yaml using sed
+                        sh """
+                         rm -Rf .kube
+                         mkdir .kube
+                         ls
+                         cat $KUBECONFIG > .kube/config
+                         sed -i 's/movie_app.nodePort: .*/movie_app.nodePort: ${nodePortMovie}/g; s/cast_app.nodePort: .*/cast_app.nodePort: ${nodePortCast}/g; s/movie_app.pvc.storage: .*/movie_app.pvc.storage: ${storage}/g; s/cast_app.pvc.storage: .*/cast_app.pvc.storage: ${storage}/g' exam/values.yaml
+                         helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values exam/values.yaml
+                        """
+                    }
                 }
             }
         }
@@ -126,7 +148,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                timeout(time: 1, unit: "MINUTES") {
+                timeout(time: 5, unit: "MINUTES") {
                     input message: 'Do you want to deploy in production?', ok: 'Yes'
                 }
                 script {
