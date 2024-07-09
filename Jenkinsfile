@@ -146,8 +146,6 @@ pipeline {
                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG || true
                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG || true
                 '''
-//                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latest || true
-//                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest || true
             }
         }
         success {
