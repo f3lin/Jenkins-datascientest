@@ -1,3 +1,8 @@
+image:
+  cast: f3lin/cast-api
+  movie: f3lin/movie-api
+  tag: latest
+
 postgresql:
   movie:
     name: movie_db
@@ -14,7 +19,7 @@ postgresql:
 
 movie_app:
   replicaCount: 1
-  image: f3lin/movie-api:latest
+  image: f3lin/movie-api
   port: 8001
   nodePort: 30011
   databaseURI: postgresql://movie_db_username:movie_db_password@movie-db-service:5432/movie_db
@@ -24,7 +29,7 @@ movie_app:
 
 cast_app:
   replicaCount: 1
-  image: f3lin/cast-api:latest
+  image: f3lin/cast-api
   port: 8002
   nodePort: 30012
   databaseURI: postgresql://cast_db_username:cast_db_password@cast-db-service:5432/cast_db

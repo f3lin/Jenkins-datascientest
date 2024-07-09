@@ -16,11 +16,26 @@ pipeline {
         stage('Docker Build Images') {
             steps {
                 script {
-                    sh '''
+                    // Fetch the latest image tags
+                    def castLatestTag = sh(script: "docker pull $DOCKER_ID/$DOCKER_CAST_IMAGE:latest || true && docker images $DOCKER_ID/$DOCKER_CAST_IMAGE:latest --format '{{.Tag}}'", returnStdout: true).trim()
+                    def movieLatestTag = sh(script: "docker pull $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest || true && docker images $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest --format '{{.Tag}}'", returnStdout: true).trim()
+
+                    // Determine new image tags based on the latest tags
+                    def newCastTag = "v.${BUILD_ID}.0"
+                    def newMovieTag = "v.${BUILD_ID}.0"
+
+                    // Build new images with the new tags
+                    sh """
                       docker rm -f jenkins || true
-                      docker build -t $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG cast-service/
-                      docker build -t $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG movie-service/
-                    '''
+                      docker build -t $DOCKER_ID/$DOCKER_CAST_IMAGE:$newCastTag cast-service/
+                      docker build -t $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$newMovieTag movie-service/
+                    """
+
+                    // Tag the new images as latest
+                    sh """
+                      docker tag $DOCKER_ID/$DOCKER_CAST_IMAGE:$newCastTag $DOCKER_ID/$DOCKER_CAST_IMAGE:latest
+                      docker tag $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$newMovieTag $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest
+                    """
                 }
             }
         }
@@ -67,7 +82,9 @@ pipeline {
                     sh '''
                      docker login -u $DOCKER_ID -p $DOCKER_PASS
                      docker push $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG
+                     docker push $DOCKER_ID/$DOCKER_CAST_IMAGE:latest
                      docker push $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG
+                     docker push $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest
                     '''
                 }
             }
@@ -90,7 +107,7 @@ pipeline {
                      # Check for the branch name and set the namespace accordingly
                      if [ "${BRANCH_NAME}" == "qa" ]; then
                          NAMESPACE=qa
-                     elif [ "${BRANCH_NAME}" == "staging" ]; then
+                     elif [ "${BRANCH_NAME}" == "staging"; then
                          NAMESPACE=staging
                      fi
 
@@ -109,10 +126,10 @@ pipeline {
                 branch 'main'
             }
             steps {
+                timeout(time: 1, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production?', ok: 'Yes'
+                }
                 script {
-                    timeout(time: 1, unit: "MINUTES") {
-                        input message: 'Do you want to deploy in production?', ok: 'Yes'
-                    }
                     sh '''
                      rm -Rf .kube
                      mkdir .kube
@@ -133,6 +150,8 @@ pipeline {
                  docker rm -f jenkins-cast jenkins-movie || true
                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG || true
                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG || true
+                 docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latesr || true
+                 docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:lates || true
                 '''
             }
         }

@@ -34,7 +34,7 @@ spec:
               value: {{ .Values.movie_app.castServiceHostURL }}
             - name: DATABASE_URI
               value: {{ .Values.movie_app.databaseURI }}
-          image: f3lin/movie-api:latest
+          image: {{ .Values.image.movie }}:{{ .Values.image.tag }}
           name: movie-app
           ports:
             - containerPort: 8000

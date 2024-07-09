@@ -32,7 +32,7 @@ spec:
           env:
             - name: DATABASE_URI
               value: {{ .Values.cast_app.databaseURI }}
-          image: f3lin/cast-api:latest
+          image: {{ .Values.image.cast }}:{{ .Values.image.tag }}
           name: cast-app
           ports:
             - containerPort: 8000
