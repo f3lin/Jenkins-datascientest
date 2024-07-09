@@ -52,7 +52,7 @@ pipeline {
             }
         }
 
-        stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
+        stage('Test Acceptance for Movie Service'){ // we launch the curl command to validate that the container responds to the request
             steps {
                 script {
                 sh '''
@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
+        stage('Test Acceptance Cast Service'){ // we launch the curl command to validate that the container responds to the request
             steps {
                 script {
                 sh '''
