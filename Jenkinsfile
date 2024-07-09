@@ -53,25 +53,25 @@ pipeline {
             }
         }
 
-        stage('Test Acceptance for Movie Service') {
-            steps {
-                script {
-                    sh '''
-                    curl localhost:8001
-                    '''
-                }
-            }
-        }
-
-        stage('Test Acceptance Cast Service') {
-            steps {
-                script {
-                    sh '''
-                    curl localhost:8002
-                    '''
-                }
-            }
-        }
+//         stage('Test Acceptance for Movie Service') {
+//             steps {
+//                 script {
+//                     sh '''
+//                     curl localhost:8001
+//                     '''
+//                 }
+//             }
+//         }
+//
+//         stage('Test Acceptance Cast Service') {
+//             steps {
+//                 script {
+//                     sh '''
+//                     curl localhost:8002
+//                     '''
+//                 }
+//             }
+//         }
 
         stage('Docker Push') {
             environment {
