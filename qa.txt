@@ -1,0 +1,23 @@
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/cast-app-675cb4879-7hb9n     1/1     Running   0          5h57m
+pod/cast-db-0                    1/1     Running   0          5h57m
+pod/movie-app-6d469c7768-49k56   1/1     Running   0          5h57m
+pod/movie-db-0                   1/1     Running   0          5h57m
+
+NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/cast-db-service    ClusterIP   10.43.125.70   <none>        5432/TCP         5h57m
+service/cast-service       NodePort    10.43.6.117    <none>        8002:30014/TCP   4h46m
+service/movie-db-service   ClusterIP   10.43.20.228   <none>        5432/TCP         5h57m
+service/movie-service      NodePort    10.43.92.69    <none>        8001:30013/TCP   4h46m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cast-app    1/1     1            1           5h57m
+deployment.apps/movie-app   1/1     1            1           5h57m
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/cast-app-675cb4879     1         1         1       5h57m
+replicaset.apps/movie-app-6d469c7768   1         1         1       5h57m
+
+NAME                        READY   AGE
+statefulset.apps/cast-db    1/1     5h57m
+statefulset.apps/movie-db   1/1     5h57m
