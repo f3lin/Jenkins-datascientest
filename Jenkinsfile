@@ -128,12 +128,13 @@ pipeline {
 
                         // Modify values.yaml using sed
                         sh """
-                         rm -Rf .kube
-                         mkdir .kube
-                         ls
-                         cat $KUBECONFIG > .kube/config
-                         sed -i 's/movie_app.nodePort: .*/movie_app.nodePort: ${nodePortMovie}/g; s/cast_app.nodePort: .*/cast_app.nodePort: ${nodePortCast}/g; s/movie_app.pvc.storage: .*/movie_app.pvc.storage: ${storage}/g; s/cast_app.pvc.storage: .*/cast_app.pvc.storage: ${storage}/g' exam/values.yaml
-                         helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values exam/values.yaml
+                          rm -Rf .kube
+                          mkdir .kube
+                          ls
+                          cat $KUBECONFIG > .kube/config
+                          cp exam/values.yaml values.yaml
+                          sed -i 's/movie_app.nodePort: .*/movie_app.nodePort: ${nodePortMovie}/g; s/cast_app.nodePort: .*/cast_app.nodePort: ${nodePortCast}/g; s/movie_app.pvc.storage: .*/movie_app.pvc.storage: ${storage}/g; s/cast_app.pvc.storage: .*/cast_app.pvc.storage: ${storage}/g' values.yaml
+                          helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values values.yaml
                         """
                     }
                 }
