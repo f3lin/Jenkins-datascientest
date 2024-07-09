@@ -133,7 +133,9 @@ pipeline {
                           ls
                           cat $KUBECONFIG > .kube/config
                           cp exam/values.yaml values.yaml
-                         sed -i 's|movie_app:\n *nodePort: .*|movie_app:\n  nodePort: ${nodePortMovie}|g; s|cast_app:\n *nodePort: .*|cast_app:\n  nodePort: ${nodePortCast}|g; s|movie_app:\n *pvc:\n  *storage: .*|movie_app:\n  pvc:\n   storage: ${storage}|g; s|cast_app:\n *pvc:\n  *storage: .*|cast_app:\n  pvc:\n   storage: ${storage}|g' values.yaml
+                         sed -i "s|^ *nodePort: [0-9]*$|  nodePort: ${nodePortMovie}|" values.yaml
+                         sed -i "s|^ *nodePort: [0-9]*$|  nodePort: ${nodePortCast}|" values.yaml
+                         sed -i "s|^ *storage: .*|  storage: ${storage}|" values.yaml
                          helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values values.yaml
                         """
                     }
