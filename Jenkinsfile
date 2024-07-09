@@ -116,7 +116,7 @@ pipeline {
 
         stage('Helm Deployment to Prod') {
             environment {
-                KUBECONFIG = credentials("config") // assuming you have Kubernetes config stored as a Jenkins credential
+                KUBECONFIG = credentials("config")
             }
             when {
                 branch 'main'
@@ -127,11 +127,11 @@ pipeline {
                 }
                 script {
                     sh '''
-                     rm -Rf .kube
-                     mkdir .kube
-                     ls
-                     cat $KUBECONFIG > .kube/config
-                     helm upgrade --install exam-app exam/ --namespace prod --create-namespace --values exam/values-prod.yaml
+                      rm -Rf .kube
+                      mkdir .kube
+                      ls
+                      cat $KUBECONFIG > .kube/config
+                      helm upgrade --install exam-app exam/ --namespace prod --create-namespace --values exam/values-prod.yaml
                     '''
                 }
             }
