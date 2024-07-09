@@ -12,7 +12,7 @@ pipeline {
                 script {
                     sh '''
                       docker rm -f jenkins || true
-                      docker build -t $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG .
+                      docker build -t $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG cast-service/
                       sleep 6
                     '''
                 }
@@ -24,7 +24,7 @@ pipeline {
                 script {
                     sh '''
                       docker rm -f jenkins || true
-                      docker build -t $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG .
+                      docker build -t $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG movie-service/
                       sleep 6
                     '''
                 }
