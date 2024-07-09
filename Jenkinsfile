@@ -8,10 +8,8 @@ pipeline {
     }
     agent any
     options {
-        // Set a timeout for the pipeline execution to avoid hanging builds
-        timeout(time: 1, unit: 'HOURS')
-        // Discard old builds to save space
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 1, unit: 'HOURS')  // Set a timeout for the pipeline execution
+        buildDiscarder(logRotator(numToKeepStr: '10'))  // Discard old builds to save space
     }
     stages {
         stage('Docker Build Images') {
@@ -100,43 +98,16 @@ pipeline {
                     def namespaces = env.NAMESPACE_LIST.split(',')
 
                     for (String namespace : namespaces) {
-                        // Define namespace-specific values
-                        def nodePortMovie
-                        def nodePortCast
-                        def storage
+                        // Determine which values.yaml to use based on the namespace
+                        def valuesFile = namespace == 'dev' ? 'values.yaml' : "values-${namespace}.yaml"
 
-                        switch (namespace) {
-                            case "dev":
-                                nodePortMovie = 30011
-                                nodePortCast = 30012
-                                storage = "100Mi"
-                                break
-                            case "qa":
-                                nodePortMovie = 30013
-                                nodePortCast = 30014
-                                storage = "100Mi"
-                                break
-                            case "staging":
-                                nodePortMovie = 30015
-                                nodePortCast = 30016
-                                storage = "150Mi"
-                                break
-                            default:
-                                echo "Namespace ${namespace} not recognized"
-                                continue
-                        }
-
-                        // Modify values.yaml using sed
+                        // Helm deployment command using the correct values.yaml for each namespace
                         sh """
-                          rm -Rf .kube
-                          mkdir .kube
-                          ls
-                          cat $KUBECONFIG > .kube/config
-                          cp exam/values.yaml values.yaml
-                          sed -i 's|^ *nodePort: [0-9]*$|  nodePort: ${nodePortMovie}|' values.yaml
-                          sed -i 's|^ *nodePort: [0-9]*$|  nodePort: ${nodePortCast}|' values.yaml
-                          sed -i 's|^ *storage: .*|  storage: ${storage}|' values.yaml
-                          helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values values.yaml
+                         rm -Rf .kube
+                         mkdir .kube
+                         ls
+                         cat $KUBECONFIG > .kube/config
+                         helm upgrade --install exam-app-${namespace} exam/ --namespace ${namespace} --create-namespace --values exam/${valuesFile}
                         """
                     }
                 }
@@ -145,7 +116,7 @@ pipeline {
 
         stage('Helm Deployment to Prod') {
             environment {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+                KUBECONFIG = credentials("config") // assuming you have Kubernetes config stored as a Jenkins credential
             }
             when {
                 branch 'main'
@@ -160,7 +131,6 @@ pipeline {
                      mkdir .kube
                      ls
                      cat $KUBECONFIG > .kube/config
-                     # Deploy with Helm using values-prod.yaml
                      helm upgrade --install exam-app exam/ --namespace prod --create-namespace --values exam/values-prod.yaml
                     '''
                 }
@@ -175,9 +145,9 @@ pipeline {
                  docker rm -f jenkins-cast jenkins-movie || true
                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:$DOCKER_TAG || true
                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:$DOCKER_TAG || true
-                 docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latest || true
-                 docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest || true
                 '''
+//                  docker rmi $DOCKER_ID/$DOCKER_CAST_IMAGE:latest || true
+//                  docker rmi $DOCKER_ID/$DOCKER_MOVIE_IMAGE:latest || true
             }
         }
         success {

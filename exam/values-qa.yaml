@@ -1,0 +1,37 @@
+image:
+  cast: f3lin/cast-api
+  movie: f3lin/movie-api
+  tag: latest
+
+postgresql:
+  movie:
+    name: movie_db
+    service: movie-db-service
+    user: movie_db_username
+    password: movie_db_password
+    replicaCount: 1
+  cast:
+    name: cast_db
+    service: cast-db-service
+    user: cast_db_username
+    password: cast_db_password
+    replicaCount: 1
+
+movie_app:
+  replicaCount: 1
+  image: f3lin/movie-api
+  port: 8001
+  nodePort: 30013
+  databaseURI: postgresql://movie_db_username:movie_db_password@movie-db-service:5432/movie_db
+  castServiceHostURL: http://cast_service:8000/api/v1/casts/
+  pvc:
+    storage: 100Mi
+
+cast_app:
+  replicaCount: 1
+  image: f3lin/cast-api
+  port: 8002
+  nodePort: 30014
+  databaseURI: postgresql://cast_db_username:cast_db_password@cast-db-service:5432/cast_db
+  pvc:
+    storage: 100Mi
