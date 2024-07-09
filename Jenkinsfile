@@ -41,13 +41,13 @@ pipeline {
                 script {
                     sh '''
                      # Test if cast-service is running
-                     if ! docker ps | grep -q jenkins-cast; then
+                     if ! docker ps -a | grep -q jenkins-cast; then
                         echo "Cast service container failed to start."
                         exit 1
                      fi
 
                      # Test if movie-service is running
-                     if ! docker ps | grep -q jenkins-movie; then
+                     if ! docker ps -a | grep -q jenkins-movie; then
                         echo "Movie service container failed to start."
                         exit 1
                      fi
